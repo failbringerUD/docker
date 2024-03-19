@@ -1,0 +1,63 @@
+version: '3.3'
+
+services:
+  cloudflare-ddns:
+    image: timothyjmiller/cloudflare-ddns:latest
+    container_name: cloudflare-ddns
+    security_opt:
+      - no-new-privileges:true
+    network_mode: 'host'
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - /home/administrator/cloudflareddns/data/config.json:/config.json
+    restart: unless-stopped
+  
+  speedtest:
+      container_name: speedtest
+      image: henrywhitaker3/speedtest-tracker
+      volumes:
+          - /home/administrator/speedtest/data:/config
+      environment:
+          - TZ=America/New_York
+          - PGID=100
+          - PUID=1000
+          - OOKLA_EULA_GDPR=true
+      logging:
+          driver: "json-file"
+          options:
+              max-file: "10"
+              max-size: "200k"
+      restart: unless-stopped
+      networks:
+          - proxy
+      labels:
+          - "traefik.enable=true"
+          - "traefik.http.routers.speedtest.entrypoints=http"
+          - "traefik.http.routers.speedtest.rule=Host(`speedtest.local.thedrainvilles.xyz`)"
+          - "traefik.http.middlewares.speedtest-https-redirect.redirectscheme.scheme=https"
+          - "traefik.http.routers.speedtest.middlewares=speedtest-https-redirect"
+          - "traefik.http.routers.speedtest-secure.entrypoints=https"
+          - "traefik.http.routers.speedtest-secure.rule=Host(`speedtest.local.thedrainvilles.xyz`)"
+          - "traefik.http.routers.speedtest-secure.tls=true"
+          - "traefik.http.routers.speedtest-secure.service=speedtest"
+          - "traefik.http.services.speedtest.loadbalancer.server.port=80"
+          - "traefik.docker.network=proxy"
+
+  #unbound:
+  #    container_name: unbound
+  #    image: mvance/unbound:latest
+  #    volumes:
+  #        - /home/administrator/unbound:/opt/unbound/etc/unbound'
+  #    ports:
+  #        - "5335:53/tcp"
+  #        - "5335:53/udp"
+  #    healthcheck:
+  #        disable: true
+  #    restart: unless-stopped
+
+
+networks:
+    proxy:
+        external: true

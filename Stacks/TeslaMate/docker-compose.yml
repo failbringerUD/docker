@@ -1,0 +1,88 @@
+version: "3"
+
+services:
+  teslamate:
+    image: teslamate/teslamate:latest
+    restart: always
+    environment:
+      - ENCRYPTION_KEY=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Im5ZdVZJWTJTN3gxVHRYM01KMC1QMDJad3pXQSJ9.eyJpc3MiOiJodHRwczovL2F1dGgudGVzbGEuY29tL29hdXRoMi92MyIsInNjcCI6WyJvcGVuaWQiLCJvZmZsaW5lX2FjY2VzcyJdLCJhdWQiOiJodHRwczovL2F1dGgudGVzbGEuY29tL29hdXRoMi92My90b2tlbiIsInN1YiI6IjQ5YmQ2NWE1LTY5YWEtNGE2Mi04OTEyLTA4M2M2ZjYxZjFmOCIsImRhdGEiOnsidiI6IjEiLCJhdWQiOiJodHRwczovL293bmVyLWFwaS50ZXNsYW1vdG9ycy5jb20vIiwic3ViIjoiNDliZDY1YTUtNjlhYS00YTYyLTg5MTItMDgzYzZmNjFmMWY4Iiwic2NwIjpbIm9wZW5pZCIsIm9mZmxpbmVfYWNjZXNzIl0sImF6cCI6Im93bmVyYXBpIiwiYW1yIjpbInB3ZCIsIm1mYSIsIm90cCJdLCJhdXRoX3RpbWUiOjE2ODgzMTg3MjJ9LCJpYXQiOjE2ODgzMTg3MjJ9.X9a6gi0VjGFybtCafM4juSfFpxTtM2MBuhQKalJcOBUWhaNoLSZ_dktS1V4YYhRASZqXisCjZ0pfSdhRv162I9Kuo4myyv0WR1CwfM6nsOpaMGKpUa9YH4ZJhIE2bqRaDmKLOG8gpWOdhRpIMANKxBqvh1FIzbws5gtRUG23aEi3sldBUNBgMbqkH7uJ3ZEZWQHZlJbyR-KYlEKf17Vfunfe0IocKdrhHyB-rsGa9up4HM-s-YYyxX4uMbfYgPZLqB1AUan7ENVzozcKZCN-RLzsY82cLIOor2j5foHIRQPLFpM9vlXwaM4l42T5lOaGGG0En28kT3q-ZJ3gFt3SWw
+      - DATABASE_USER=teslamate
+      - DATABASE_PASS=N3trunner!
+      - DATABASE_NAME=teslamate
+      - DATABASE_HOST=database
+      - MQTT_HOST=mosquitto
+    #ports:
+    #  - 4000:4000
+    volumes:
+      - ./import:/opt/app/import
+    cap_drop:
+      - all
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.teslamate.entrypoints=http"
+      - "traefik.http.routers.teslamate.rule=Host(`teslamate.local.thedrainvilles.xyz`)"
+      - "traefik.http.middlewares.teslamate-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.teslamate.middlewares=teslamate-https-redirect"
+      - "traefik.http.routers.teslamate-secure.entrypoints=https"
+      - "traefik.http.routers.teslamate-secure.rule=Host(`teslamate.local.thedrainvilles.xyz`)"
+      - "traefik.http.routers.teslamate-secure.tls=true"
+      - "traefik.http.routers.teslamate-secure.service=teslamate"
+      - "traefik.http.services.teslamate.loadbalancer.server.port=4000"
+      - "traefik.docker.network=proxy"
+
+
+  database:
+    image: postgres:15
+    restart: always
+    environment:
+      - POSTGRES_USER=teslamate
+      - POSTGRES_PASSWORD=N3trunner!
+      - POSTGRES_DB=teslamate
+    volumes:
+      - /home/administrator/teslamate/db:/var/lib/postgresql/data
+
+  grafana:
+    image: teslamate/grafana:latest
+    restart: always
+    environment:
+      - DATABASE_USER=teslamate
+      - DATABASE_PASS=N3trunner!
+      - DATABASE_NAME=teslamate
+      - DATABASE_HOST=database
+    #ports:
+    #  - 3000:3000
+    volumes:
+      - /home/administrator/teslamate/data:/var/lib/grafana
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.entrypoints=http"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.local.thedrainvilles.xyz`)"
+      - "traefik.http.middlewares.grafana-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.grafana.middlewares=grafana-https-redirect"
+      - "traefik.http.routers.grafana-secure.entrypoints=https"
+      - "traefik.http.routers.grafana-secure.rule=Host(`grafana.local.thedrainvilles.xyz`)"
+      - "traefik.http.routers.grafana-secure.tls=true"
+      - "traefik.http.routers.grafana-secure.service=grafana"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+      - "traefik.docker.network=proxy"
+
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    restart: always
+    command: mosquitto -c /mosquitto-no-auth.conf
+    # ports:
+    #   - 1883:1883
+    volumes:
+      - /home/administrator/teslamate/mqttconf:/mosquitto/config
+      - /home/administrator/teslamate/mqttdata:/mosquitto/data
+
+#volumes:
+#  teslamate-db: /home/administrator/teslamate/db
+#  teslamate-grafana-data: /home/administrator/teslamate/data
+#  mosquitto-conf: /home/administrator/teslamate/mqttconf
+#  mosquitto-data: /home/administrator/teslamate/mqttdata
+
+networks:
+    proxy:
+        external: true

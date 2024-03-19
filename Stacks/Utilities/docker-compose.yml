@@ -1,0 +1,92 @@
+version: '3.3'
+
+services:
+  vlmcsd:
+      container_name: vlmcsd
+      image: mikolatero/vlmcsd
+      restart: always
+      ports:
+        - 1688:1688
+    
+  heimdall:
+    image: lscr.io/linuxserver/heimdall:latest
+    container_name: heimdall
+    restart: unless-stopped
+    environment:
+    - PUID=1000
+    - PGID=1000
+    - TZ=America/New_York
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - proxy
+    volumes:
+      - /home/administrator/heimdall/data:/config
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.heimdall.entrypoints=http"
+      - "traefik.http.routers.heimdall.rule=Host(`heimdall.local.thedrainvilles.xyz`)"
+      - "traefik.http.middlewares.heimdall-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.heimdall.middlewares=heimdall-https-redirect"
+      - "traefik.http.routers.heimdall-secure.entrypoints=https"
+      - "traefik.http.routers.heimdall-secure.rule=Host(`heimdall.local.thedrainvilles.xyz`)"
+      - "traefik.http.routers.heimdall-secure.tls=true"
+      - "traefik.http.routers.heimdall-secure.service=heimdall"
+      - "traefik.http.services.heimdall.loadbalancer.server.port=80"
+      - "traefik.docker.network=proxy"
+
+  uptimekuma:
+    image: louislam/uptime-kuma:latest
+    container_name: uptimekuma
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - proxy
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /home/administrator/uptimekuma/data:/app/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.uptimekuma.entrypoints=http"
+      - "traefik.http.routers.uptimekuma.rule=Host(`uptimekuma.local.thedrainvilles.xyz`)"
+      - "traefik.http.middlewares.uptimekuma-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.uptimekuma.middlewares=uptimekuma-https-redirect"
+      - "traefik.http.routers.uptimekuma-secure.entrypoints=https"
+      - "traefik.http.routers.uptimekuma-secure.rule=Host(`uptimekuma.local.thedrainvilles.xyz`)"
+      - "traefik.http.routers.uptimekuma-secure.tls=true"
+      - "traefik.http.routers.uptimekuma-secure.service=uptimekuma"
+      - "traefik.http.services.uptimekuma.loadbalancer.server.port=3001"
+      - "traefik.docker.network=proxy"
+
+  homarr:
+    container_name: homarr
+    image: ghcr.io/ajnart/homarr:latest
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # Optional, only if you want docker integration
+      - /home/administrator/homarr/configs:/app/data/configs
+      - /home/administrator/homarr/icons:/app/public/icons
+      - /home/administrator/homarr/data:/data
+    networks:
+      - proxy
+    environment:
+      - BASE_URL=homarr.local.thedrainvilles.xyz
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.homarr.entrypoints=http"
+      - "traefik.http.routers.homarr.rule=Host(`homarr.local.thedrainvilles.xyz`)"
+      - "traefik.http.middlewares.homarr-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.homarr.middlewares=homarr-https-redirect"
+      - "traefik.http.routers.homarr-secure.entrypoints=https"
+      - "traefik.http.routers.homarr-secure.rule=Host(`homarr.local.thedrainvilles.xyz`)"
+      - "traefik.http.routers.homarr-secure.tls=true"
+      - "traefik.http.routers.homarr-secure.service=homarr"
+      - "traefik.http.services.homarr.loadbalancer.server.port=7575"
+      - "traefik.docker.network=proxy"
+ 
+
+networks:
+    proxy:
+        external: true

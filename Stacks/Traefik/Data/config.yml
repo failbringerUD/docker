@@ -1,0 +1,295 @@
+http:
+  #region routers 
+  routers:
+    pve01:
+        entryPoints:
+          - "https"
+        rule: "Host(`pve01.local.thedrainvilles.xyz`)"
+        middlewares:
+          - default-headers
+          - https-redirectscheme
+        tls: {}
+        service: pve01
+    piholelx01:
+        entryPoints:
+          - "https"
+        rule: "Host(`piholelx01.local.thedrainvilles.xyz`)"
+        middlewares:
+          - default-headers
+          - addprefix-pihole
+          - https-redirectscheme
+        tls: {}
+        service: piholelx01
+    piholedns02:
+        entryPoints:
+          - "https"
+        rule: "Host(`piholedns02.local.thedrainvilles.xyz`)"
+        middlewares:
+          - default-headers
+          - addprefix-pihole
+          - https-redirectscheme
+        tls: {}
+        service: piholedns02
+    piholedns03:
+        entryPoints:
+          - "https"
+        rule: "Host(`piholedns03.local.thedrainvilles.xyz`)"
+        middlewares:
+          - default-headers
+          - addprefix-pihole
+          - https-redirectscheme
+        tls: {}
+        service: piholedns03
+    maas01:
+        entryPoints:
+          - "https"
+        rule: "Host(`maas01.local.thedrainvilles.xyz`)"
+        middlewares:
+          - default-headers
+          #- addprefix-maas
+          - https-redirectscheme
+        tls: {}
+        service: maas01
+    lb01:
+        entryPoints:
+          - "https"
+        rule: "Host(`lb01.local.thedrainvilles.xyz`)"
+        middlewares:
+          - default-headers
+          - https-redirectscheme
+        tls: {}
+        service: lb01
+    grafana:
+        entryPoints:
+          - "https"
+        rule: "Host(`grafana.local.thedrainvilles.xyz`)"
+        middlewares:
+          - default-headers
+          - https-redirectscheme
+        tls: {}
+        service: grafana
+    docker01cockpit:
+        entryPoints:
+          - "https"
+        rule: "Host(`docker01.local.thedrainvilles.xyz`)"
+        middlewares:
+          - default-headers
+          - https-redirectscheme
+        tls: {}
+        service: docker01cockpit
+    docker02cockpit:
+        entryPoints:
+          - "https"
+        rule: "Host(`docker02.local.thedrainvilles.xyz`)"
+        middlewares:
+          - default-headers
+          - https-redirectscheme
+        tls: {}
+        service: docker02cockpit
+    docker03cockpit:
+        entryPoints:
+          - "https"
+        rule: "Host(`docker03.local.thedrainvilles.xyz`)"
+        middlewares:
+          - default-headers
+          - https-redirectscheme
+        tls: {}
+        service: docker03cockpit
+    docker04cockpit:
+        entryPoints:
+          - "https"
+        rule: "Host(`docker04.local.thedrainvilles.xyz`)"
+        middlewares:
+          - default-headers
+          - https-redirectscheme
+        tls: {}
+        service: docker04cockpit
+    lx01cockpit:
+        entryPoints:
+          - "https"
+        rule: "Host(`lx01.local.thedrainvilles.xyz`)"
+        middlewares:
+          - default-headers
+          - https-redirectscheme
+        tls: {}
+        service: lx01cockpit
+    lx02cockpit:
+        entryPoints:
+          - "https"
+        rule: "Host(`lx02.local.thedrainvilles.xyz`)"
+        middlewares:
+          - default-headers
+          - https-redirectscheme
+        tls: {}
+        service: lx02cockpit
+    dns02cockpit:
+        entryPoints:
+          - "https"
+        rule: "Host(`dns02.local.thedrainvilles.xyz`)"
+        middlewares:
+          - default-headers
+          - https-redirectscheme
+        tls: {}
+        service: dns02cockpit
+    maas01cockpit:
+        entryPoints:
+          - "https"
+        rule: "Host(`maas01.local.thedrainvilles.xyz`)"
+        middlewares:
+          - default-headers
+          - https-redirectscheme
+        tls: {}
+        service: maas01cockpit
+    ansible01cockpit:
+        entryPoints:
+          - "https"
+        rule: "Host(`ansible01.local.thedrainvilles.xyz`)"
+        middlewares:
+          - default-headers
+          - https-redirectscheme
+        tls: {}
+        service: ansible01cockpit
+
+
+
+
+#endregion
+
+#region services
+  services:
+    pve01:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.13.10:8006"
+        passHostHeader: true
+    piholelx01:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.13.245:80"
+        passHostHeader: true
+    piholedns02:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.13.246:80"
+        passHostHeader: true
+    piholedns03:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.86.33:80"
+        passHostHeader: true
+    maas01:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.13.50:5240"
+        passHostHeader: true
+    lb01:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.13.5"
+        passHostHeader: true
+    grafana01:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.13.51:3000"
+        passHostHeader: true
+    docker01cockpit:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.13.30:9090"
+        passHostHeader: true
+    docker02cockpit:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.13.31:9090"
+        passHostHeader: true
+    docker03cockpit:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.13.32:9090"
+        passHostHeader: true
+    docker04cockpit:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.13.33:9090"
+        passHostHeader: true
+    lx01cockpit:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.13.245:9090"
+        passHostHeader: true
+    lx02cockpit:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.13.108:9090"
+        passHostHeader: true
+    dns02cockpit:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.13.246:9090"
+        passHostHeader: true
+    maas01cockpit:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.13.50:9090"
+        passHostHeader: true
+    ansible01cockpit:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.13.51:9090"
+        passHostHeader: true
+
+
+
+#endregion
+
+#region middlewares
+  middlewares:
+    addprefix-pihole:
+      addPrefix:
+        prefix: "/admin"
+    https-redirectscheme:
+      redirectScheme:
+        scheme: https
+        permanent: true
+    addprefix-maas:
+      addPrefix:
+        prefix: "/MAAS/r/"
+#endregion
+
+    default-headers:
+      headers:
+        frameDeny: true
+        browserXssFilter: true
+        contentTypeNosniff: true
+        forceSTSHeader: true
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 15552000
+        customFrameOptionsValue: SAMEORIGIN
+        customRequestHeaders:
+          X-Forwarded-Proto: https
+
+    idrac:
+      headers:
+        frameDeny: true
+        browserXssFilter: true
+        forceSTSHeader: true
+        stsIncludeSubdomains: true
+        stsSeconds: 15552000
+        customFrameOptionsValue: SAMEORIGIN
+        customRequestHeaders:
+          X-Forwarded-Proto: https
+
+    default-whitelist:
+      ipWhiteList:
+        sourceRange:
+        - "10.0.0.0/8"
+        - "192.168.0.0/16"
+        - "172.16.0.0/12"
+
+    secured:
+      chain:
+        middlewares:
+        - default-whitelist
+        - default-headers
+#endregion

@@ -1,0 +1,28 @@
+{
+    "cloudflare": [
+      {
+        "authentication": {
+          "api_token": "YXWyusXwF9_sPHN8LLx1vT6wxxxDllvnuSFgXHiY",
+          "api_key": {
+            "api_key": "api_key_here",
+            "account_email": "ugodrainville@outlook.com"
+          }
+        },
+        "zone_id": "bea8ea7a995c4cb833855381b565476f",
+        "subdomains": [
+          {
+            "name": "",
+            "proxied": false
+          },
+          {
+            "name": "local",
+            "proxied": false
+          }
+        ]
+      }
+    ],
+    "a": true,
+    "aaaa": true,
+    "purgeUnknownRecords": false,
+    "ttl": 300
+  }

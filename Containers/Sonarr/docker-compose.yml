@@ -1,0 +1,33 @@
+version: "2.1"
+
+services:
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    networks:
+      - proxy
+    volumes:
+      - /home/administrator/sonarr/data:/config
+      - /home/administrator/media/tv:/tv #optional
+      - /home/administrator/media:/downloads #optional
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.sonarr.entrypoints=http"
+      - "traefik.http.routers.sonarr.rule=Host(`sonarr.local.thedrainvilles.xyz`)"
+      - "traefik.http.middlewares.sonarr-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.sonarr.middlewares=sonarr-https-redirect"
+      - "traefik.http.routers.sonarr-secure.entrypoints=https"
+      - "traefik.http.routers.sonarr-secure.rule=Host(`sonarr.local.thedrainvilles.xyz`)"
+      - "traefik.http.routers.sonarr-secure.tls=true"
+      - "traefik.http.routers.sonarr-secure.service=sonarr"
+      - "traefik.http.services.sonarr.loadbalancer.server.port=8989"
+      - "traefik.docker.network=proxy"
+
+networks:
+  proxy:
+    external: true
